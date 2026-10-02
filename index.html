@@ -12,17 +12,18 @@
 /* Layout: menu de papelaria em uma coluna estreita, pensado para o celular; cada parte da cozinha é um bloco; barra fixa embaixo leva à revisão e à mensagem pronta */
 :root{
   --bg:#F3EEE5; --paper:#FBF8F2; --ink:#49372F; --muted:#8A7768; --line:#E0D5C4;
-  --areia:#D8C3A6; --azul:#B8CDD3; --verde:#A9C6BA; --box:#E9E0D2; --on:#49372F; --onink:#F3EEE5;
+  --areia:#D8C3A6; --azul:#B8CDD3; --verde:#A9C6BA; --box:#E9E0D2; --on:#49372F; --onink:#F3EEE5; --warn:#9A5B2E;
   --display:"Cormorant Garamond", Garamond, "Times New Roman", serif;
   --body:"Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#271E19; --paper:#32271F; --ink:#F3EEE5; --muted:#BDAE9F; --line:#4A3C33;
-  --areia:#A88E6E; --azul:#7E9BA3; --verde:#7F9F91; --box:#3D3028; --on:#F3EEE5; --onink:#271E19; color-scheme:dark}}
+  --areia:#A88E6E; --azul:#7E9BA3; --verde:#7F9F91; --box:#3D3028; --on:#F3EEE5; --onink:#271E19; --warn:#E3B07F; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#271E19; --paper:#32271F; --ink:#F3EEE5; --muted:#BDAE9F; --line:#4A3C33;
-  --areia:#A88E6E; --azul:#7E9BA3; --verde:#7F9F91; --box:#3D3028; --on:#F3EEE5; --onink:#271E19; color-scheme:dark}
+  --areia:#A88E6E; --azul:#7E9BA3; --verde:#7F9F91; --box:#3D3028; --on:#F3EEE5; --onink:#271E19; --warn:#E3B07F; color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15.5px;line-height:1.55}
 .wrap{max-width:680px;margin:0 auto;padding-inline:18px;padding-block:40px 140px;display:grid;gap:40px}
 header{text-align:center;display:grid;gap:6px;border-bottom:1px solid var(--areia);padding-bottom:30px}
@@ -73,6 +74,12 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .bar .sum{font-size:13px;color:var(--muted);min-width:0}
 .bar .sum b{color:var(--ink);font-weight:600}
 #review{scroll-margin-top:20px}
+.hint-err{margin:0;font-size:13.5px;color:var(--warn)}
+.done{background:var(--box);border-radius:10px;padding:20px 20px 14px;display:grid;gap:6px}
+.done .dt{font-family:var(--display);font-weight:500;font-size:26px;letter-spacing:0;text-transform:none;color:var(--ink);margin:0}
+.done p{margin:0}.done .small{font-size:13px;color:var(--muted);margin-top:6px}
+.linkbtn{font:inherit;background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;cursor:pointer}
+.btn[disabled]{opacity:.6;cursor:wait}
 pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px;font-family:var(--body);font-size:14px;margin:0;max-height:420px;overflow:auto}
 .acts{display:flex;flex-wrap:wrap;gap:10px}
 .end{text-align:center;font-family:var(--display);font-style:italic;font-size:20px;color:var(--muted);border-top:1px solid var(--areia);padding-top:22px}
@@ -88,7 +95,7 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--paper);borde
     <small>OUTEIRO DAS BRISAS · BAHIA</small>
     <b>CASA MANGABA</b>
     <h1>O cardápio da sua estadia</h1>
-    <p>Marquem o que o grupo gostaria de ter na mesa. No fim, a página monta a mensagem pronta para enviar no grupo da casa. As escolhas precisam chegar até 7 dias antes da chegada.</p>
+    <p>Marquem o que o grupo gostaria de ter na mesa. No fim, é só tocar em Concluir e as escolhas chegam direto para a nossa equipe. As escolhas precisam chegar até 7 dias antes da chegada.</p>
   </header>
 
   <section aria-labelledby="h-res">
@@ -157,17 +164,29 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--paper);borde
   </section>
 
   <section id="review" aria-labelledby="h-rev">
-    <div class="sh"><span class="n">09</span><h2 id="h-rev">Revisar e enviar</h2></div>
-    <p class="rule">Esta é a mensagem com as escolhas do grupo. Copiem e colem no <b>grupo da casa</b>, para o Bruno ou a Marina.</p>
-    <pre class="msg" id="msg"></pre>
-    <div class="acts"><button class="btn" id="copy" type="button">Copiar mensagem</button><button class="btn alt" id="clear" type="button">Limpar escolhas</button></div>
-    <div class="box" id="confirmClear" hidden>Apagar todas as escolhas desta página? <button class="btn" id="yesClear" type="button" style="margin-left:8px;padding:7px 14px;font-size:13px">Apagar</button> <button class="btn alt" id="noClear" type="button" style="padding:7px 14px;font-size:13px">Cancelar</button></div>
+    <div class="sh"><span class="n">09</span><h2 id="h-rev">Revisar e concluir</h2></div>
+    <div id="formView">
+      <p class="rule">Confiram as escolhas do grupo abaixo. Quando estiver tudo certo, toquem em <b>Concluir</b>: as escolhas chegam direto para a nossa equipe.</p>
+      <pre class="msg" id="msg"></pre>
+      <p class="hint-err" id="faltam" hidden></p>
+      <div class="acts"><button class="btn" id="send" type="button">Concluir</button><button class="btn alt" id="clear" type="button">Limpar escolhas</button></div>
+      <div class="box" id="confirmClear" hidden>Apagar todas as escolhas desta página? <button class="btn" id="yesClear" type="button" style="margin-left:8px;padding:7px 14px;font-size:13px">Apagar</button> <button class="btn alt" id="noClear" type="button" style="padding:7px 14px;font-size:13px">Cancelar</button></div>
+    </div>
+    <div class="done" id="doneView" hidden>
+      <h3 class="dt">Recebemos as escolhas de vocês.</h3>
+      <p>Nossa cozinheira já vai começar a organizar a estadia. Em breve mandamos a confirmação no grupo da casa, com tudo o que foi pedido.</p>
+      <p class="small">Precisam mudar alguma coisa? <button class="linkbtn" id="reopen" type="button">Editar e enviar de novo</button></p>
+    </div>
+    <div class="box" id="fallView" hidden>
+      <b>Não conseguimos enviar agora.</b> Sem problema: copiem a mensagem e colem no grupo da casa.
+      <div class="acts" style="margin-top:10px"><button class="btn" id="copy" type="button">Copiar mensagem</button></div>
+    </div>
   </section>
 
-  <p class="end">Mandem as escolhas no grupo da casa e nós cuidamos do resto.<br>Quando vocês chegarem, a geladeira já vai estar cheia.</p>
+  <p class="end">Concluam as escolhas e nós cuidamos do resto.<br>Quando vocês chegarem, a geladeira já vai estar cheia.</p>
 </div>
 
-<div class="bar"><div class="in"><span class="sum" id="sum"></span><button class="btn" id="goReview" type="button">Revisar e enviar</button></div></div>
+<div class="bar"><div class="in"><span class="sum" id="sum"></span><button class="btn" id="goReview" type="button">Revisar e concluir</button></div></div>
 <div class="toast" id="toast" hidden></div>
 
 <script>
@@ -268,14 +287,34 @@ document.addEventListener('input',e=>{
 });
 $('goReview').onclick=()=>$('review').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
 function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2400)}
+const ENDPOINT='__ENDPOINT__';
+function novoId(){return 'CM-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase()}
+function faltando(){const f=S.f,m=[];if(!(f.resp||'').trim())m.push('responsável');if(!f.entrada)m.push('chegada');if(!f.saida)m.push('saída');if(f.adultos===undefined||f.adultos==='')m.push('número de adultos');if(f.criancas===undefined||f.criancas==='')m.push('número de crianças');return m}
+function view(v){$('formView').hidden=v!=='form';$('doneView').hidden=v!=='done';$('fallView').hidden=v!=='fall';}
+$('send').onclick=async()=>{
+  const m=faltando();
+  if(m.length){$('faltam').textContent='Falta preencher: '+m.join(', ')+'. Está lá no começo da página, em A reserva.';$('faltam').hidden=false;$('resp').scrollIntoView({block:'center'});return;}
+  $('faltam').hidden=true;
+  if(!S.id){S.id=novoId();save();}
+  const b=$('send');b.disabled=true;b.textContent='Enviando…';
+  try{
+    if(!/^https:\/\/script\.google\.com\//.test(ENDPOINT)) throw new Error('sem endereço');
+    await fetch(ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({id:S.id,f:S.f,msg:message(),state:S})});
+    S.enviado=new Date().toISOString();save();view('done');
+  }catch(_){view('fall');}
+  b.disabled=false;b.textContent='Concluir';
+  $('review').scrollIntoView({block:'start'});
+};
+$('reopen').onclick=()=>{S.id=novoId();S.enviado=null;save();view('form');};
 $('copy').onclick=()=>{const s=message();
   navigator.clipboard.writeText(s).then(()=>toast('Mensagem copiada. Agora é só colar no grupo da casa.')).catch(()=>{
     const r=document.createRange();r.selectNodeContents($('msg'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);
     toast('Texto selecionado. Use copiar do seu celular.');});};
 $('clear').onclick=()=>{$('confirmClear').hidden=false};
 $('noClear').onclick=()=>{$('confirmClear').hidden=true};
-$('yesClear').onclick=()=>{S={cafe:{},alm:{},aper:{},bolos:{},horario:'',altTipo:'',extras:[{i:'',q:'',m:''}],f:{}};$('confirmClear').hidden=true;renderAll();toast('Escolhas apagadas')};
+$('yesClear').onclick=()=>{S={cafe:{},alm:{},aper:{},bolos:{},horario:'',altTipo:'',extras:[{i:'',q:'',m:''}],f:{}};$('confirmClear').hidden=true;view('form');renderAll();toast('Escolhas apagadas')};
 renderAll();
+view(S.enviado?'done':'form');
 </script>
 
 </body>
