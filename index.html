@@ -299,8 +299,10 @@ $('send').onclick=async()=>{
   const b=$('send');b.disabled=true;b.textContent='Enviando…';$('goReview').disabled=true;$('goReview').textContent='Enviando…';
   try{
     if(!/^https:\/\/script\.google\.com\//.test(ENDPOINT)) throw new Error('sem endereço');
-    await fetch(ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({id:S.id,f:S.f,msg:message(),state:S})});
-    S.enviado=new Date().toISOString();save();view('done');
+    const r=await fetch(ENDPOINT,{method:'POST',credentials:'omit',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({id:S.id,f:S.f,msg:message(),state:S})});
+    const j=await r.json();
+    if(!j||!j.ok) throw new Error('não gravou');
+    S.enviado=new Date().toISOString();S.confirmado=true;save();view('done');
   }catch(_){view('fall');}
   b.disabled=false;b.textContent='Concluir';$('goReview').disabled=false;$('goReview').textContent=S.enviado?'Ver envio':'Concluir';
   $('review').scrollIntoView({block:'start'});
@@ -313,6 +315,7 @@ $('copy').onclick=()=>{const s=message();
 $('clear').onclick=()=>{$('confirmClear').hidden=false};
 $('noClear').onclick=()=>{$('confirmClear').hidden=true};
 $('yesClear').onclick=()=>{S={cafe:{},alm:{},aper:{},bolos:{},horario:'',altTipo:'',extras:[{i:'',q:'',m:''}],f:{}};$('confirmClear').hidden=true;view('form');renderAll();toast('Escolhas apagadas')};
+if(S.enviado&&!S.confirmado){S.enviado=null;save();}
 renderAll();
 view(S.enviado?'done':'form');
 if(S.enviado) $('goReview').textContent='Ver envio';
