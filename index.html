@@ -186,7 +186,7 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--paper);borde
   <p class="end">Concluam as escolhas e nós cuidamos do resto.<br>Quando vocês chegarem, a geladeira já vai estar cheia.</p>
 </div>
 
-<div class="bar"><div class="in"><span class="sum" id="sum"></span><button class="btn" id="goReview" type="button">Revisar e concluir</button></div></div>
+<div class="bar"><div class="in"><span class="sum" id="sum"></span><button class="btn" id="goReview" type="button">Concluir</button></div></div>
 <div class="toast" id="toast" hidden></div>
 
 <script>
@@ -285,7 +285,7 @@ document.addEventListener('input',e=>{
   if(t.dataset.ex){S.extras[+t.dataset.ex][t.dataset.k]=t.value; refresh();}
   else if(FIELDS.includes(t.id)){S.f[t.id]=t.value; refresh();}
 });
-$('goReview').onclick=()=>$('review').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+$('goReview').onclick=()=>{ if(S.enviado){$('review').scrollIntoView({block:'start'});return;} $('send').click(); };
 function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2400)}
 const ENDPOINT='https://script.google.com/macros/s/AKfycbzF-LKmrMNHDziXT3Mq0E3JamtPH1mG0xBFVQm6-0rm15U7voEd2H8i7ik0sSfvkgQU/exec';
 function novoId(){return 'CM-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase()}
@@ -293,19 +293,19 @@ function faltando(){const f=S.f,m=[];if(!(f.resp||'').trim())m.push('responsáve
 function view(v){$('formView').hidden=v!=='form';$('doneView').hidden=v!=='done';$('fallView').hidden=v!=='fall';}
 $('send').onclick=async()=>{
   const m=faltando();
-  if(m.length){$('faltam').textContent='Falta preencher: '+m.join(', ')+'. Está lá no começo da página, em A reserva.';$('faltam').hidden=false;$('resp').scrollIntoView({block:'center'});return;}
+  if(m.length){const t='Falta preencher: '+m.join(', ')+'. Está lá no começo da página, em A reserva.';$('faltam').textContent=t;$('faltam').hidden=false;toast(t);$('resp').scrollIntoView({block:'center'});return;}
   $('faltam').hidden=true;
   if(!S.id){S.id=novoId();save();}
-  const b=$('send');b.disabled=true;b.textContent='Enviando…';
+  const b=$('send');b.disabled=true;b.textContent='Enviando…';$('goReview').disabled=true;$('goReview').textContent='Enviando…';
   try{
     if(!/^https:\/\/script\.google\.com\//.test(ENDPOINT)) throw new Error('sem endereço');
     await fetch(ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({id:S.id,f:S.f,msg:message(),state:S})});
     S.enviado=new Date().toISOString();save();view('done');
   }catch(_){view('fall');}
-  b.disabled=false;b.textContent='Concluir';
+  b.disabled=false;b.textContent='Concluir';$('goReview').disabled=false;$('goReview').textContent=S.enviado?'Ver envio':'Concluir';
   $('review').scrollIntoView({block:'start'});
 };
-$('reopen').onclick=()=>{S.id=novoId();S.enviado=null;save();view('form');};
+$('reopen').onclick=()=>{S.id=novoId();S.enviado=null;save();view('form');$('goReview').textContent='Concluir';};
 $('copy').onclick=()=>{const s=message();
   navigator.clipboard.writeText(s).then(()=>toast('Mensagem copiada. Agora é só colar no grupo da casa.')).catch(()=>{
     const r=document.createRange();r.selectNodeContents($('msg'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);
@@ -315,6 +315,7 @@ $('noClear').onclick=()=>{$('confirmClear').hidden=true};
 $('yesClear').onclick=()=>{S={cafe:{},alm:{},aper:{},bolos:{},horario:'',altTipo:'',extras:[{i:'',q:'',m:''}],f:{}};$('confirmClear').hidden=true;view('form');renderAll();toast('Escolhas apagadas')};
 renderAll();
 view(S.enviado?'done':'form');
+if(S.enviado) $('goReview').textContent='Ver envio';
 </script>
 
 </body>
