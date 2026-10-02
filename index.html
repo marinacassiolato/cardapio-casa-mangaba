@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Cardápio Casa Mangaba</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+/* Layout: menu de papelaria em uma coluna estreita, pensado para o celular; cada parte da cozinha é um bloco; barra fixa embaixo leva à revisão e à mensagem pronta */
+:root{
+  --bg:#F3EEE5; --paper:#FBF8F2; --ink:#49372F; --muted:#8A7768; --line:#E0D5C4;
+  --areia:#D8C3A6; --azul:#B8CDD3; --verde:#A9C6BA; --box:#E9E0D2; --on:#49372F; --onink:#F3EEE5;
+  --display:"Cormorant Garamond", Garamond, "Times New Roman", serif;
+  --body:"Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#271E19; --paper:#32271F; --ink:#F3EEE5; --muted:#BDAE9F; --line:#4A3C33;
+  --areia:#A88E6E; --azul:#7E9BA3; --verde:#7F9F91; --box:#3D3028; --on:#F3EEE5; --onink:#271E19; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#271E19; --paper:#32271F; --ink:#F3EEE5; --muted:#BDAE9F; --line:#4A3C33;
+  --areia:#A88E6E; --azul:#7E9BA3; --verde:#7F9F91; --box:#3D3028; --on:#F3EEE5; --onink:#271E19; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15.5px;line-height:1.55}
+.wrap{max-width:680px;margin:0 auto;padding-inline:18px;padding-block:40px 140px;display:grid;gap:40px}
+header{text-align:center;display:grid;gap:6px;border-bottom:1px solid var(--areia);padding-bottom:30px}
+header small{font-size:10px;letter-spacing:.34em;color:var(--muted)}
+header b{font-family:var(--display);font-weight:500;font-size:36px;letter-spacing:.16em;line-height:1.1}
+header h1{font-family:var(--display);font-style:italic;font-weight:400;font-size:31px;margin:14px 0 4px;text-wrap:balance}
+header p{margin:0 auto;max-width:46ch;color:var(--muted);font-size:14.5px}
+section{display:grid;gap:14px}
+.sh{display:grid;gap:4px}
+.sh .n{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted)}
+.sh h2{font-family:var(--display);font-weight:500;font-size:30px;line-height:1.1;margin:0;text-wrap:balance}
+.rule{font-size:14px;margin:0}
+.rule b{font-weight:600}
+h3{font-family:var(--body);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:10px 0 2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:14.5px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;min-height:40px}
+.chip::before{content:"";width:13px;height:13px;border-radius:50%;border:1px solid var(--areia);flex:none}
+.chip[aria-pressed="true"]{background:var(--on);color:var(--onink);border-color:var(--on)}
+.chip[aria-pressed="true"]::before{background:var(--onink);border-color:var(--onink);box-shadow:inset 0 0 0 3px var(--on)}
+.items{display:grid;gap:8px}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 12px 12px 16px}
+.item.on{border-color:var(--ink)}
+.item .nm{font-family:var(--display);font-size:21px;line-height:1.15}
+.item .ac{font-size:12.5px;color:var(--muted);grid-column:1}
+.step{display:flex;align-items:center;gap:6px;grid-row:1/span 2;grid-column:2}
+.step button{font:inherit;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;font-size:18px;line-height:1}
+.step button.plus{background:var(--on);color:var(--onink);border-color:var(--on)}
+.step output{min-width:22px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+.step .zero{color:var(--muted);font-weight:400}
+.tally{font-size:13px;color:var(--muted)}
+label.f{display:grid;gap:5px;font-size:12.5px;letter-spacing:.03em;color:var(--muted)}
+input,textarea,select{font:inherit;font-size:15.5px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-width:0}
+textarea{min-height:90px;resize:vertical}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:480px){.g3{grid-template-columns:1fr 1fr}.g3 .full{grid-column:1/-1}}
+.box{background:var(--box);border-radius:6px;padding:14px 16px;font-size:14px}
+.box b{font-weight:600}
+.extra{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1.4fr) 36px;gap:8px;align-items:end}
+@media (max-width:520px){.extra{grid-template-columns:1fr 1fr 36px}.extra .ei{grid-column:1/-1}}
+.x{font:inherit;width:36px;height:42px;border:0;background:none;color:var(--muted);font-size:22px;cursor:pointer}
+.ghost{font:inherit;font-size:14px;color:var(--ink);background:transparent;border:1px dashed var(--areia);border-radius:999px;padding:9px 16px;cursor:pointer;justify-self:start}
+.btn{font:inherit;font-size:15px;letter-spacing:.03em;color:var(--onink);background:var(--on);border:1px solid var(--on);border-radius:999px;padding:12px 22px;cursor:pointer}
+.btn.alt{background:transparent;color:var(--ink);border-color:var(--line)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));z-index:5}
+.bar .in{max-width:680px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.bar .sum{font-size:13px;color:var(--muted);min-width:0}
+.bar .sum b{color:var(--ink);font-weight:600}
+#review{scroll-margin-top:20px}
+pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px;font-family:var(--body);font-size:14px;margin:0;max-height:420px;overflow:auto}
+.acts{display:flex;flex-wrap:wrap;gap:10px}
+.end{text-align:center;font-family:var(--display);font-style:italic;font-size:20px;color:var(--muted);border-top:1px solid var(--areia);padding-top:22px}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--on);color:var(--onink);padding:10px 18px;border-radius:999px;font-size:13.5px;z-index:9}
+@media (prefers-reduced-motion:no-preference){.chip,.item{transition:background .15s,border-color .15s,color .15s}}
+</style>
+
+<style>html{padding-top:env(safe-area-inset-top,0px)}body{margin:0}</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <small>OUTEIRO DAS BRISAS · BAHIA</small>
+    <b>CASA MANGABA</b>
+    <h1>O cardápio da sua estadia</h1>
+    <p>Marquem o que o grupo gostaria de ter na mesa. No fim, a página monta a mensagem pronta para enviar no grupo da casa. As escolhas precisam chegar até 7 dias antes da chegada.</p>
+  </header>
+
+  <section aria-labelledby="h-res">
+    <div class="sh"><span class="n">01</span><h2 id="h-res">A reserva</h2></div>
+    <label class="f">Responsável pela reserva<input id="resp" autocomplete="name"></label>
+    <div class="g2">
+      <label class="f">Chegada<input id="entrada" type="date"></label>
+      <label class="f">Saída<input id="saida" type="date"></label>
+    </div>
+    <div class="g3">
+      <label class="f">Adultos<input id="adultos" type="number" min="0" inputmode="numeric"></label>
+      <label class="f">Crianças<input id="criancas" type="number" min="0" inputmode="numeric"></label>
+      <label class="f full">Idade das crianças<input id="idades" placeholder="ex.: 4, 7 e 9 anos"></label>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-cafe">
+    <div class="sh"><span class="n">02</span><h2 id="h-cafe">Café da manhã</h2></div>
+    <p class="rule">Servido <b>das 8h30 às 10h30</b>, todos os dias. As escolhas valem para todas as manhãs, e não há limite de itens.</p>
+    <div id="cafe"></div>
+  </section>
+
+  <section aria-labelledby="h-alm">
+    <div class="sh"><span class="n">03</span><h2 id="h-alm">Almoço</h2></div>
+    <p class="rule"><b>Um prato por dia</b>, com os acompanhamentos. Escolham os pratos da estadia; se quiserem repetir algum, é só aumentar a quantidade. A equipe organiza a sequência dos dias.</p>
+    <h3>Horário do almoço</h3>
+    <div class="chips" id="horario"></div>
+    <h3>Pratos</h3>
+    <div class="items" id="almoco"></div>
+    <p class="tally" id="t-alm"></p>
+  </section>
+
+  <section aria-labelledby="h-alt">
+    <div class="sh"><span class="n">04</span><h2 id="h-alt">Quem não come peixe</h2></div>
+    <p class="rule">Nos dias de prato do mar, a cozinha prepara uma proteína alternativa para quem preferir.</p>
+    <div class="chips" id="altTipo"></div>
+    <label class="f">Quantas pessoas vão precisar da alternativa<input id="altN" type="number" min="0" inputmode="numeric" placeholder="0"></label>
+  </section>
+
+  <section aria-labelledby="h-ap">
+    <div class="sh"><span class="n">05</span><h2 id="h-ap">Aperitivos</h2></div>
+    <p class="rule">A cozinheira prepara <b>até dois aperitivos por dia</b>. Escolham os sabores da estadia.</p>
+    <div class="items" id="aper"></div>
+  </section>
+
+  <section aria-labelledby="h-bolo">
+    <div class="sh"><span class="n">06</span><h2 id="h-bolo">Bolo das 15h</h2></div>
+    <p class="rule"><b>Um bolo por dia</b>, servido às 15h com café. Escolham os sabores que o grupo gostaria de provar.</p>
+    <div class="items" id="bolos"></div>
+    <p class="tally" id="t-bolo"></p>
+  </section>
+
+  <section aria-labelledby="h-rest">
+    <div class="sh"><span class="n">07</span><h2 id="h-rest">Restrições e pedidos especiais</h2></div>
+    <label class="f">Alergias, intolerâncias, vegetarianos, crianças com alimentação específica<textarea id="restricoes" placeholder="ex.: uma criança com intolerância a lactose"></textarea></label>
+    <label class="f">Um prato fora do menu, uma data especial, algum pedido para a cozinha<textarea id="obs" placeholder="ex.: dia 14 é aniversário, gostaríamos de um bolo no café da manhã"></textarea></label>
+    <div class="box"><b>Jantar não está incluso.</b> Se o grupo quiser jantar em casa em alguma noite, escrevam aqui o dia. Verificamos a disponibilidade da equipe e informamos o valor da hora extra.</div>
+    <label class="f">Jantar em casa (opcional)<input id="jantar" placeholder="ex.: dia 10, para 13 pessoas"></label>
+  </section>
+
+  <section aria-labelledby="h-ext">
+    <div class="sh"><span class="n">08</span><h2 id="h-ext">Itens extras</h2></div>
+    <p class="rule">Bebidas, snacks, itens pessoais e ingredientes de jantar entram na mesma compra. Informem <b>item, quantidade e marca</b>, quando houver preferência.</p>
+    <div class="items" id="extras"></div>
+    <button class="ghost" id="addExtra" type="button">+ Adicionar item</button>
+  </section>
+
+  <section id="review" aria-labelledby="h-rev">
+    <div class="sh"><span class="n">09</span><h2 id="h-rev">Revisar e enviar</h2></div>
+    <p class="rule">Esta é a mensagem com as escolhas do grupo. Copiem e colem no <b>grupo da casa</b>, para o Bruno ou a Marina.</p>
+    <pre class="msg" id="msg"></pre>
+    <div class="acts"><button class="btn" id="copy" type="button">Copiar mensagem</button><button class="btn alt" id="clear" type="button">Limpar escolhas</button></div>
+    <div class="box" id="confirmClear" hidden>Apagar todas as escolhas desta página? <button class="btn" id="yesClear" type="button" style="margin-left:8px;padding:7px 14px;font-size:13px">Apagar</button> <button class="btn alt" id="noClear" type="button" style="padding:7px 14px;font-size:13px">Cancelar</button></div>
+  </section>
+
+  <p class="end">Mandem as escolhas no grupo da casa e nós cuidamos do resto.<br>Quando vocês chegarem, a geladeira já vai estar cheia.</p>
+</div>
+
+<div class="bar"><div class="in"><span class="sum" id="sum"></span><button class="btn" id="goReview" type="button">Revisar e enviar</button></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const CAFE=[
+ ['Pães',['Pão francês','Pão de forma','Pão de queijo']],
+ ['Pastas e acompanhamentos',['Manteiga','Requeijão','Creme de ricota','Geleia','Mel']],
+ ['Queijos e frios',['Muçarela','Minas frescal','Presunto','Peito de peru']],
+ ['Iogurte e cereais',['Iogurte natural','Granola']],
+ ['Frutas',['Mamão papaya','Manga','Abacaxi','Melão','Melancia','Banana']],
+ ['Bebidas',['Café','Leite','Leite sem lactose','Leite vegetal','Açúcar','Adoçante','Água de coco natural','Suco de laranja','Suco de melancia']],
+ ['Preparados na hora',['Banana-da-terra','Queijo coalho grelhado','Ovo mexido']],
+ ['Tapiocas',['Banana com Nutella','Queijo coalho','Presunto e muçarela','Peito de peru e queijo branco']]
+];
+const ALMOCO=[
+ ['Arroz de polvo','Salada'],['Bobó de camarão','Arroz, salada e batata palha'],['Camarão na moranga','Farofa de abacaxi, arroz e salada'],
+ ['Moqueca de peixe','Arroz branco, farofa de banana, pirão e salada'],['Peixe assado com legumes','Arroz, farofa e salada'],
+ ['Peixe grelhado com molho marroquino','Arroz, salada e legumes'],['Lagosta assada','Arroz, salada e farofa'],
+ ['Filé mignon com molho madeira','Arroz, salada e batata assada'],['Filé mignon ao molho de mostarda','Arroz branco e batata ao forno'],
+ ['Strogonoff de frango','Arroz branco, batata palha e salada'],['Strogonoff de carne','Arroz branco, batata palha e salada'],
+ ['Parmegiana de carne','Arroz branco e batata palha']
+];
+const APER=['Lula à dorê','Isca de peixe','Pastel de camarão','Pastel de carne','Pastel de queijo','Guacamole com torradas','Camarão ao alho e óleo','Camarão empanado','Ceviche'];
+const BOLOS=['Coco','Iogurte natural com nozes e castanhas','Maracujá','Cenoura com chocolate','Milho','Chocolate','Laranja','Fubá com goiabada','Fubá com erva-doce'];
+const HORARIOS=['12h30','13h30','14h30','Deixar pronto para aquecer mais tarde'];
+const ALT=['Filé de frango grelhado','Filé mignon grelhado'];
+const FIELDS=['resp','entrada','saida','adultos','criancas','idades','altN','restricoes','obs','jantar'];
+
+const KEY='casa-mangaba-cardapio-v1';
+let S={cafe:{},alm:{},aper:{},bolos:{},horario:'',altTipo:'',extras:[{i:'',q:'',m:''}],f:{}};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s) S={...S,...s};}catch(_){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(_){}}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function renderCafe(){
+  $('cafe').innerHTML=CAFE.map(([g,its])=>`<h3>${esc(g)}</h3><div class="chips">${its.map(n=>{const k=g+'|'+n;return `<button type="button" class="chip" data-cafe="${esc(k)}" aria-pressed="${!!S.cafe[k]}">${esc(n)}</button>`}).join('')}</div>`).join('');
+}
+function chips(el,opts,key){
+  $(el).innerHTML=opts.map(o=>`<button type="button" class="chip" data-one="${key}" data-v="${esc(o)}" aria-pressed="${S[key]===o}">${esc(o)}</button>`).join('');
+}
+function stepList(el,list,key,withAc){
+  $(el).innerHTML=list.map(x=>{const n=withAc?x[0]:x, ac=withAc?x[1]:'', v=S[key][n]||0;
+    return `<div class="item${v?' on':''}"><span class="nm">${esc(n)}</span>${ac?`<span class="ac">${esc(ac)}</span>`:''}<span class="step"><button type="button" data-step="${key}" data-n="${esc(n)}" data-d="-1" aria-label="Menos ${esc(n)}">−</button><output class="${v?'':'zero'}">${v}</output><button type="button" class="plus" data-step="${key}" data-n="${esc(n)}" data-d="1" aria-label="Mais ${esc(n)}">+</button></span></div>`}).join('');
+}
+function renderExtras(){
+  $('extras').innerHTML=S.extras.map((e,i)=>`<div class="extra"><label class="f ei">Item<input id="ex-i-${i}" data-ex="${i}" data-k="i" value="${esc(e.i)}" placeholder="ex.: água com gás"></label><label class="f">Quantidade<input id="ex-q-${i}" data-ex="${i}" data-k="q" value="${esc(e.q)}" placeholder="2 caixas"></label><label class="f">Marca<input id="ex-m-${i}" data-ex="${i}" data-k="m" value="${esc(e.m)}" placeholder="opcional"></label><button type="button" class="x" data-del="${i}" aria-label="Remover item">×</button></div>`).join('');
+}
+function nights(){const a=new Date(S.f.entrada),b=new Date(S.f.saida);return (S.f.entrada&&S.f.saida&&b>a)?Math.round((b-a)/864e5):0}
+const sumObj=o=>Object.values(o).reduce((a,b)=>a+b,0);
+function br(d){if(!d)return'';const [y,m,dd]=d.split('-');return dd+'/'+m+'/'+y}
+function message(){
+  const f=S.f, L=[];
+  L.push('*Casa Mangaba — escolhas da cozinha*');
+  if(f.resp) L.push('Responsável: '+f.resp);
+  if(f.entrada||f.saida){const n=nights(); L.push('Estadia: '+br(f.entrada)+' a '+br(f.saida)+(n?' · '+n+' noites':''));}
+  const ad=+f.adultos||0, cr=+f.criancas||0;
+  if(ad||cr) L.push('Grupo: '+ad+' adultos e '+cr+' crianças'+(f.idades?' ('+f.idades+')':'')+' · '+(ad+cr)+' hóspedes');
+  const cafe=CAFE.map(([g,its])=>[g,its.filter(n=>S.cafe[g+'|'+n])]).filter(([,v])=>v.length);
+  L.push('','*CAFÉ DA MANHÃ*'); if(cafe.length) cafe.forEach(([g,v])=>L.push(g+': '+v.join(', '))); else L.push('(nada marcado)');
+  L.push('','*ALMOÇO* — '+(S.horario||'horário não escolhido'));
+  const al=Object.entries(S.alm).filter(([,v])=>v>0); if(al.length) al.forEach(([n,v])=>L.push('• '+n+' × '+v)); else L.push('(nada marcado)');
+  const altN=+f.altN||0; if(altN) L.push('Proteína alternativa: '+(S.altTipo||'a combinar')+' para '+altN+' pessoa'+(altN>1?'s':''));
+  L.push('','*APERITIVOS*'); const ap=Object.entries(S.aper).filter(([,v])=>v>0); if(ap.length) ap.forEach(([n,v])=>L.push('• '+n+(v>1?' × '+v:''))); else L.push('(nada marcado)');
+  L.push('','*BOLOS DAS 15H*'); const bo=Object.entries(S.bolos).filter(([,v])=>v>0); if(bo.length) bo.forEach(([n,v])=>L.push('• '+n+(v>1?' × '+v:''))); else L.push('(nada marcado)');
+  L.push('','*RESTRIÇÕES*', (f.restricoes||'').trim()||'Nenhuma restrição informada.');
+  if((f.obs||'').trim()) L.push('','*PEDIDOS ESPECIAIS*',f.obs.trim());
+  if((f.jantar||'').trim()) L.push('','*JANTAR EM CASA*',f.jantar.trim());
+  const ex=S.extras.filter(e=>(e.i||'').trim());
+  if(ex.length){L.push('','*ITENS EXTRAS*'); ex.forEach(e=>L.push('• '+e.i.trim()+(e.q?' — '+e.q.trim():'')+(e.m?' ('+e.m.trim()+')':'')));}
+  return L.join('\n');
+}
+function refresh(){
+  const n=nights(), a=sumObj(S.alm), b=sumObj(S.bolos);
+  $('t-alm').textContent=a?(a+' prato'+(a>1?'s':'')+' escolhido'+(a>1?'s':'')+(n?' para '+n+' noites de estadia':'')+'.'):'';
+  $('t-bolo').textContent=b?(b+' bolo'+(b>1?'s':'')+(n?' para '+n+' tardes':'')+'.'):'';
+  const c=Object.values(S.cafe).filter(Boolean).length, ap=sumObj(S.aper);
+  $('sum').innerHTML=`<b>${c}</b> no café · <b>${a}</b> almoço${a===1?'':'s'} · <b>${ap}</b> aperitivo${ap===1?'':'s'} · <b>${b}</b> bolo${b===1?'':'s'}`;
+  $('msg').textContent=message(); save();
+}
+function renderAll(){
+  renderCafe(); chips('horario',HORARIOS,'horario'); chips('altTipo',ALT,'altTipo');
+  stepList('almoco',ALMOCO,'alm',true); stepList('aper',APER,'aper',false); stepList('bolos',BOLOS,'bolos',false);
+  renderExtras(); FIELDS.forEach(k=>{$(k).value=S.f[k]??''}); refresh();
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button'); if(!t) return;
+  if(t.dataset.cafe){const k=t.dataset.cafe; S.cafe[k]=!S.cafe[k]; t.setAttribute('aria-pressed',S.cafe[k]); refresh();}
+  else if(t.dataset.one){const k=t.dataset.one; S[k]=S[k]===t.dataset.v?'':t.dataset.v; chips(k,k==='horario'?HORARIOS:ALT,k); refresh();}
+  else if(t.dataset.step){const k=t.dataset.step,n=t.dataset.n; S[k][n]=Math.max(0,Math.min(14,(S[k][n]||0)+(+t.dataset.d))); if(!S[k][n]) delete S[k][n];
+    const it=t.closest('.item'),o=it.querySelector('output'),v=S[k][n]||0; o.textContent=v; o.className=v?'':'zero'; it.classList.toggle('on',!!v); refresh();}
+  else if(t.dataset.del){S.extras.splice(+t.dataset.del,1); if(!S.extras.length) S.extras.push({i:'',q:'',m:''}); renderExtras(); refresh();}
+});
+$('addExtra').onclick=()=>{S.extras.push({i:'',q:'',m:''}); renderExtras(); refresh(); $('ex-i-'+(S.extras.length-1)).focus();};
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset.ex){S.extras[+t.dataset.ex][t.dataset.k]=t.value; refresh();}
+  else if(FIELDS.includes(t.id)){S.f[t.id]=t.value; refresh();}
+});
+$('goReview').onclick=()=>$('review').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2400)}
+$('copy').onclick=()=>{const s=message();
+  navigator.clipboard.writeText(s).then(()=>toast('Mensagem copiada. Agora é só colar no grupo da casa.')).catch(()=>{
+    const r=document.createRange();r.selectNodeContents($('msg'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);
+    toast('Texto selecionado. Use copiar do seu celular.');});};
+$('clear').onclick=()=>{$('confirmClear').hidden=false};
+$('noClear').onclick=()=>{$('confirmClear').hidden=true};
+$('yesClear').onclick=()=>{S={cafe:{},alm:{},aper:{},bolos:{},horario:'',altTipo:'',extras:[{i:'',q:'',m:''}],f:{}};$('confirmClear').hidden=true;renderAll();toast('Escolhas apagadas')};
+renderAll();
+</script>
+
+</body>
+</html>
