@@ -69,6 +69,14 @@ textarea{min-height:90px;resize:vertical}
 .btn{font:inherit;font-size:15px;letter-spacing:.03em;color:var(--onink);background:var(--on);border:1px solid var(--on);border-radius:999px;padding:12px 22px;cursor:pointer}
 .btn.alt{background:transparent;color:var(--ink);border-color:var(--line)}
 button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+.fim{position:fixed;inset:0;z-index:20;background:var(--bg);display:grid;place-items:center;padding:24px 20px;text-align:center}
+.fim[hidden]{display:none}
+.fim .in{max-width:440px;display:grid;gap:14px;justify-items:center}
+.fim .ok{width:64px;height:64px;border-radius:50%;background:var(--on);color:var(--onink);display:grid;place-items:center;font-size:30px}
+.fim h2{font-family:var(--display);font-weight:500;font-size:34px;line-height:1.1;margin:6px 0 0;text-wrap:balance}
+.fim p{margin:0;color:var(--muted)}
+.fim .acts{justify-content:center}
+.jaenv{font-size:13.5px;color:var(--muted);margin:0}
 .bar{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));z-index:5}
 .bar .in{max-width:680px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .bar .sum{font-size:13px;color:var(--muted);min-width:0}
@@ -167,6 +175,7 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--paper);borde
     <div class="sh"><span class="n">09</span><h2 id="h-rev">Revisar e concluir</h2></div>
     <div id="formView">
       <p class="rule">Confiram as escolhas do grupo abaixo. Quando estiver tudo certo, toquem em <b>Concluir</b>: as escolhas chegam direto para a nossa equipe.</p>
+      <p class="jaenv" id="jaenv" hidden></p>
       <pre class="msg" id="msg"></pre>
       <p class="hint-err" id="faltam" hidden></p>
       <div class="acts"><button class="btn" id="send" type="button">Concluir</button><button class="btn alt" id="clear" type="button">Limpar escolhas</button></div>
@@ -187,6 +196,13 @@ pre.msg{white-space:pre-wrap;word-break:break-word;background:var(--paper);borde
 </div>
 
 <div class="bar"><div class="in"><span class="sum" id="sum"></span><button class="btn" id="goReview" type="button">Concluir</button></div></div>
+<div class="fim" id="fim" role="dialog" aria-modal="true" aria-labelledby="fim-t" hidden><div class="in">
+  <div class="ok" aria-hidden="true">✓</div>
+  <h2 id="fim-t">Pedido finalizado</h2>
+  <p>Recebemos as escolhas de vocês. Nossa cozinheira já vai começar a organizar a estadia, e em breve mandamos a confirmação no grupo da casa.</p>
+  <p id="fim-id" style="font-size:12.5px"></p>
+  <div class="acts"><button class="btn" id="fimOk" type="button">Fechar</button><button class="btn alt" id="fimEdit" type="button">Editar escolhas</button></div>
+</div></div>
 <div class="toast" id="toast" hidden></div>
 
 <script>
@@ -285,7 +301,7 @@ document.addEventListener('input',e=>{
   if(t.dataset.ex){S.extras[+t.dataset.ex][t.dataset.k]=t.value; refresh();}
   else if(FIELDS.includes(t.id)){S.f[t.id]=t.value; refresh();}
 });
-$('goReview').onclick=()=>{ if(S.enviado){$('review').scrollIntoView({block:'start'});return;} $('send').click(); };
+$('goReview').onclick=()=>$('send').click();
 function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2400)}
 const ENDPOINT='https://script.google.com/macros/s/AKfycbzF-LKmrMNHDziXT3Mq0E3JamtPH1mG0xBFVQm6-0rm15U7voEd2H8i7ik0sSfvkgQU/exec';
 function novoId(){return 'CM-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase()}
@@ -295,30 +311,36 @@ $('send').onclick=async()=>{
   const m=faltando();
   if(m.length){const t='Falta preencher: '+m.join(', ')+'. Está lá no começo da página, em A reserva.';$('faltam').textContent=t;$('faltam').hidden=false;toast(t);$('resp').scrollIntoView({block:'center'});return;}
   $('faltam').hidden=true;
-  if(!S.id){S.id=novoId();save();}
+  S.id=novoId();save();
   const b=$('send');b.disabled=true;b.textContent='Enviando…';$('goReview').disabled=true;$('goReview').textContent='Enviando…';
   try{
     if(!/^https:\/\/script\.google\.com\//.test(ENDPOINT)) throw new Error('sem endereço');
     const r=await fetch(ENDPOINT,{method:'POST',credentials:'omit',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({id:S.id,f:S.f,msg:message(),state:S})});
     const j=await r.json();
     if(!j||!j.ok) throw new Error('não gravou');
-    S.enviado=new Date().toISOString();S.confirmado=true;save();view('done');
+    S.enviado=new Date().toISOString();S.confirmado=true;save();view('done');abrirFim();
   }catch(_){view('fall');}
-  b.disabled=false;b.textContent='Concluir';$('goReview').disabled=false;$('goReview').textContent=S.enviado?'Ver envio':'Concluir';
-  $('review').scrollIntoView({block:'start'});
+  b.disabled=false;b.textContent='Concluir';$('goReview').disabled=false;$('goReview').textContent='Concluir';
+  if(!$('fallView').hidden) $('review').scrollIntoView({block:'start'});
 };
-$('reopen').onclick=()=>{S.id=novoId();S.enviado=null;save();view('form');$('goReview').textContent='Concluir';};
+function quando(iso){const d=new Date(iso);return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
+function notaEnvio(){const n=$('jaenv');if(S.enviado){n.textContent='Vocês já enviaram as escolhas em '+quando(S.enviado)+'. Se mudarem alguma coisa, é só tocar em Concluir de novo.';n.hidden=false;}else n.hidden=true;}
+function abrirFim(){$('fim-id').textContent='Pedido '+S.id;$('fim').hidden=false;document.body.style.overflow='hidden';$('fimOk').focus();}
+function fecharFim(){$('fim').hidden=true;document.body.style.overflow='';}
+$('fimOk').onclick=()=>{fecharFim();window.scrollTo({top:0});};
+$('fimEdit').onclick=()=>{fecharFim();view('form');notaEnvio();window.scrollTo({top:0});};
+$('reopen').onclick=()=>{view('form');notaEnvio();};
 $('copy').onclick=()=>{const s=message();
   navigator.clipboard.writeText(s).then(()=>toast('Mensagem copiada. Agora é só colar no grupo da casa.')).catch(()=>{
     const r=document.createRange();r.selectNodeContents($('msg'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);
     toast('Texto selecionado. Use copiar do seu celular.');});};
 $('clear').onclick=()=>{$('confirmClear').hidden=false};
 $('noClear').onclick=()=>{$('confirmClear').hidden=true};
-$('yesClear').onclick=()=>{S={cafe:{},alm:{},aper:{},bolos:{},horario:'',altTipo:'',extras:[{i:'',q:'',m:''}],f:{}};$('confirmClear').hidden=true;view('form');renderAll();toast('Escolhas apagadas')};
+$('yesClear').onclick=()=>{S={cafe:{},alm:{},aper:{},bolos:{},horario:'',altTipo:'',extras:[{i:'',q:'',m:''}],f:{}};$('confirmClear').hidden=true;view('form');renderAll();notaEnvio();toast('Escolhas apagadas')};
 if(S.enviado&&!S.confirmado){S.enviado=null;save();}
 renderAll();
-view(S.enviado?'done':'form');
-if(S.enviado) $('goReview').textContent='Ver envio';
+view('form');
+notaEnvio();
 </script>
 
 </body>
